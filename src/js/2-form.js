@@ -1,32 +1,55 @@
-const form = document.querySelector('.feedback-form');
-form.addEventListener('submit', handleSubmit);
-form.addEventListener('input', saveDataInLocal);
-let saveData = {};
+const STORAGE_KEY = 'feedback-form-state';
 
-if(localStorage.getItem('feedback-form-state')) {
-  saveData = JSON.parse(localStorage.getItem('feedback-form-state'));
-  for(let key in saveData) {
-    form.elements[key].value = saveData[key];
+const form = document.querySelector('.feedback-form');
+
+form.addEventListener('input', onFormInput);
+form.addEventListener('submit', onFormSubmit);
+
+function onFormInput() {
+  const data = {
+    message: form.elements.message.value.trim(),
+    email: form.elements.email.value.trim(),
+  };
+
+  saveToLS(STORAGE_KEY, data);
+}
+
+function onFormSubmit(evt) {
+  evt.preventDefault();
+  const email = form.elements.email.value.trim();
+  const message = form.elements.message.value.trim();
+  if (email !== '' && message !== '') {
+    const data = {
+      email,
+      message,
+    };
+    console.log(data);
+    localStorage.removeItem(STORAGE_KEY);
+    form.reset();
+  } else {
+    alert('All form fields must be filled in');
   }
 }
 
-function saveDataInLocal({target: {value, name}}) {
-  saveData[name] = value.trim();
-  localStorage.setItem('feedback-form-state', JSON.stringify(saveData));
+function saveToLS(key, value) {
+  const zip = JSON.stringify(value);
+  localStorage.setItem(key, zip);
 }
 
-function handleSubmit(event) {
-  event.preventDefault();
-  const form = event.target;
-  const email = form.elements.email.value;
-  const message = form.elements.message.value;
+function loadFromLS(key) {
+  const zip = localStorage.getItem(key);
+  try {
+    const data = JSON.parse(zip);
+    return data;
+  } catch {
+    return zip;
+  }
+}
 
-  if (email.trim() !== "" && message.trim() !== "") {
-    const userCredentials = {};
-    userCredentials.email = email;
-    userCredentials.message = message;
-    console.log(userCredentials);
-    localStorage.removeItem('feedback-form-state');
-    form.reset();
-  } 
-};
+function savedDataInputs() {
+  const data = loadFromLS(STORAGE_KEY) || {};
+  form.elements.email.value = data.email || '';
+  form.elements.message.value = data.message || '';
+}
+
+savedDataInputs();

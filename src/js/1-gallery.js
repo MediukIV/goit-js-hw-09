@@ -68,28 +68,22 @@ const images = [
   ];
   
 // Створення елемента розмітки галереї
-  function createElementGallery({preview, original, description}) {
-    const item = document.createElement('li');
-    item.classList.add('gallery-item');
-
-    const link = document.createElement('a');
-    link.classList.add('gallery-link');
-    link.setAttribute('href', original);
-    
-    const img = document.createElement('img');
-    img.classList.add('gallery-image');
-    img.setAttribute('src', preview);
-    img.setAttribute('alt', description);
-
-    link.append(img);
-    item.append(link);
-    return item
-  };
+  const galleryList = document.querySelector(".gallery");
+const gallery = images.map(({ preview, original, description }) => `
+<li class="gallery-item">
+<a class="gallery-link" href="${original}">
+  <img 
+    class="gallery-image"
+    src="${preview}"
+    data-source="${original}"
+    alt="${description}"
+  />
+</a>
+</li>`)
+    .join("");
 
 // Додавання розмітки в галерею
-const gallery = document.querySelector('.gallery');
-const markup = images.map(createElementGallery);
-gallery.append(...markup);
+galleryList.insertAdjacentHTML(`beforeend`, gallery);
 
 // Бібліотека simplelightbox
 const lightbox = new SimpleLightbox('.gallery a', {captionDelay: 250, captionsData: 'alt'});
